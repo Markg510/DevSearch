@@ -99,7 +99,7 @@ struct DetailedDeveloperItem: View {
     ) -> some View {
         Label {
             HStack {
-                Text(formattedValue(value))
+                Text(value.formattedValue())
                     .font(.headline)
                     .foregroundStyle(.textPrimary)
                     .fontWeight(.medium)
@@ -118,14 +118,6 @@ struct DetailedDeveloperItem: View {
         .clipShape(.rect(cornerRadius: 16))
         .lineLimit(1)
         .minimumScaleFactor(0.8)
-    }
-
-    private func formattedValue(_ value: Int) -> String {
-        if value > 999 {
-            "\(value / 1_000)k"
-        } else {
-            String(value)
-        }
     }
 }
 

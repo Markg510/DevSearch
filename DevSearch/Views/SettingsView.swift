@@ -12,24 +12,21 @@ struct SettingsView: View {
     @AppStorage("homeContent") private var homeContent: HomeContent = .featured
     
     var body: some View {
-        VStack(alignment: .leading) {
-            header
-            
-            viewItems
-            
-            Spacer()
-        }.padding()
-            .background(.appBg)
-            .navigationTitle("Settings")
+        NavigationStack {
+            VStack(alignment: .leading) {
+                header
+                
+                viewItems
+                
+                Spacer()
+            }.padding()
+                .background(.appBg)
+                .navigationTitle("Settings")
+        }.environment(\.colorScheme, .dark)
     }
     
     @ViewBuilder
     private var header: some View {
-        Text("Settings")
-            .font(.title)
-            .foregroundStyle(.textPrimary)
-            .fontWeight(.bold)
-        
         Text("Choose what shows on your home screen")
             .foregroundStyle(.textSecondary)
             .font(.footnote)
