@@ -156,7 +156,7 @@
 		A85BCBF8303A2335009D4D4D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = A85BCBEF303A2332009D4D4D /* DevSearch */;
-			baseConfigurationReferenceRelativePath = ApiTokens.xcconfig;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -222,7 +222,7 @@
 		A85BCBF9303A2335009D4D4D /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = A85BCBEF303A2332009D4D4D /* DevSearch */;
-			baseConfigurationReferenceRelativePath = ApiTokens.xcconfig;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -281,7 +281,7 @@
 		A85BCBFB303A2335009D4D4D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = A85BCBEF303A2332009D4D4D /* DevSearch */;
-			baseConfigurationReferenceRelativePath = ApiTokens.xcconfig;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -317,7 +317,7 @@
 		A85BCBFC303A2335009D4D4D /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = A85BCBEF303A2332009D4D4D /* DevSearch */;
-			baseConfigurationReferenceRelativePath = ApiTokens.xcconfig;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
