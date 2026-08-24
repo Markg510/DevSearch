@@ -15,9 +15,12 @@ struct DeveloperView: View {
     @Environment(\.openURL) private var openURL
     @State private var vm = DeveloperVM()
     
+    @State private var viewMode: ViewMode = .success
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                viewMode.errorView
                 header
                 userStats
                 location
@@ -27,14 +30,7 @@ struct DeveloperView: View {
             }.padding()
         }.background(.appBg)
             .task {
-                Task {
-                    do {
-                        try await vm.fetchDeveloper(login: login)
-                        try await vm.fetchRepositories(of: login)
-                    } catch {
-                        print(error)
-                    }
-                }
+                handleFetchingDeveloperDetails()
             }
     }
     
@@ -50,7 +46,7 @@ struct DeveloperView: View {
             }.frame(width: 100, height: 100)
                 .clipShape(.rect(cornerRadius: 16))
             
-            Text(vm.developer?.name ?? "Loading...")
+            Text(isUnavailable(vm.developer?.name))
                 .font(.title)
                 .fontWeight(.medium)
                 .foregroundStyle(.textPrimary)
@@ -58,8 +54,7 @@ struct DeveloperView: View {
             Text(login)
                 .foregroundStyle(.textSecondary)
             
-            
-            Text(vm.developer?.bio ?? "Loading...")
+            Text(isUnavailable(vm.developer?.bio))
                 .foregroundStyle(.textTertiary)
                 .font(.caption)
                 .lineLimit(1)
@@ -128,7 +123,12 @@ struct DeveloperView: View {
                     .font(.footnote)
                     .foregroundStyle(.textSecondary)
                 
-                Text(vm.developer?.location ?? "Loading...")
+                Text(isUnavailable(vm.developer?.location))
+                    .overlay {
+                        if viewMode.isLoading {
+                            LoadingView(.rect(cornerRadius: 16))
+                        }
+                    }
                     .font(.callout)
                     .foregroundStyle(.textPrimary)
             }
@@ -144,14 +144,24 @@ struct DeveloperView: View {
                 .foregroundStyle(.textSecondary)
                 .fontWeight(.medium)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(vm.topLanguagesArray) { language in
-                        languageItem(language)
+            if vm.topLanguagesArray.isEmpty && !viewMode.isLoading {
+                Text("Unavailable")
+                    .font(.footnote)
+                    .foregroundStyle(.textTertiary)
+            } else if vm.topLanguagesArray.isEmpty && viewMode.isLoading {
+                Text("Loading_Loading_Loading)")
+                    .overlay(LoadingView(.rect(cornerRadius: 16)))
+            } else if !vm.topLanguagesArray.isEmpty && !viewMode.isLoading {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(vm.topLanguagesArray) { language in
+                            languageItem(language)
+                        }
                     }
                 }
             }
         }.padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
             .surface()
             .padding(.bottom)
     }
@@ -183,7 +193,7 @@ struct DeveloperView: View {
             ForEach(vm.repos) { repo in
                 repoItem(
                     title: repo.name,
-                    description: repo.description ?? "Loading...",
+                    description: repo.description ?? "Unavailable",
                     language: repo.language ?? .go,
                     stars: repo.stargazersCount
                 )
@@ -225,6 +235,29 @@ struct DeveloperView: View {
             guard let url = URL(string: urlString) else { return }
             openURL(url)
         }.padding(.top)
+    }
+    
+    private func isUnavailable(_ value: String?) -> String {
+        if viewMode.isLoading {
+            "Loading..."
+        } else {
+            value ?? "Unavailable"
+        }
+    }
+    
+    // MARK: HANDLERS
+    private func handleFetchingDeveloperDetails() {
+        Task {
+            do {
+                viewMode = .loading(label: "Fetching Developer Details")
+                try await vm.fetchDeveloper(login: login)
+                try await vm.fetchRepositories(of: login)
+                
+                viewMode = .success
+            } catch {
+                viewMode = .failure(error: error)
+            }
+        }
     }
 }
 

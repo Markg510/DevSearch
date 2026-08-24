@@ -46,20 +46,37 @@ import Foundation
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let response = response as? HTTPURLResponse,
-              200..<300 ~= response.statusCode else {
-            throw URLError(.badServerResponse)
+        guard let response = response as? HTTPURLResponse else {
+            throw GitHubError.invalidData
+        }
+        
+        switch response.statusCode {
+        case 200..<300: break
+        case 401:
+            throw GitHubError.unauthorized
+        case 403, 429:
+            throw GitHubError.rateLimitExceeded
+        case 404:
+            throw GitHubError.notFound(username: query)
+        default:
+            throw GitHubError.invalidResponse(
+                statusCode: response.statusCode
+            )
         }
 
-        let mappedResponse = try JSONDecoder().decode(
-            DeveloperSearchResponse.self,
-            from: data
-        )
-
-        if page == 1 {
-            searchResults = mappedResponse.items
-        } else {
-            searchResults.append(contentsOf: mappedResponse.items)
+        do {
+            let mappedResponse = try JSONDecoder().decode(
+                DeveloperSearchResponse.self,
+                from: data
+            )
+            
+            if page == 1 {
+                searchResults = mappedResponse.items
+            } else {
+                searchResults.append(contentsOf: mappedResponse.items)
+            }
+        } catch {
+            throw GitHubError.invalidData
         }
     }
 }

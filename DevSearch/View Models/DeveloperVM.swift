@@ -22,7 +22,7 @@ import Foundation
         guard let githubToken = Bundle.main.object(
             forInfoDictionaryKey: "GITHUB_TOKEN"
         ) as? String else {
-            throw URLError(.userAuthenticationRequired)
+            throw GitHubError.unauthorized
         }
 
         let url = URL(string: "https://api.github.com/users/\(login)")!
@@ -45,10 +45,23 @@ import Foundation
         )
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let response = response as? HTTPURLResponse,
-              200..<300 ~= response.statusCode else {
-            throw URLError(.badServerResponse)
+        
+        guard let response = response as? HTTPURLResponse else {
+            throw GitHubError.invalidData
+        }
+        
+        switch response.statusCode {
+        case 200..<300: break
+        case 401:
+            throw GitHubError.unauthorized
+        case 403, 429:
+            throw GitHubError.rateLimitExceeded
+        case 404:
+            throw GitHubError.notFound(username: login)
+        default:
+            throw GitHubError.invalidResponse(
+                statusCode: response.statusCode
+            )
         }
 
         developer = try JSONDecoder().decode(Developer.self, from: data)
@@ -64,7 +77,7 @@ import Foundation
         guard let githubToken = Bundle.main.object(
             forInfoDictionaryKey: "GITHUB_TOKEN"
         ) as? String else {
-            throw URLError(.userAuthenticationRequired)
+            throw GitHubError.unauthorized
         }
         
         request.setValue(
@@ -83,20 +96,37 @@ import Foundation
         )
 
         let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let response = response as? HTTPURLResponse,
-              200..<300 ~= response.statusCode else {
-            throw URLError(.badServerResponse)
+        
+        guard let response = response as? HTTPURLResponse else {
+            throw GitHubError.invalidData
+        }
+        
+        switch response.statusCode {
+        case 200..<300: break
+        case 401:
+            throw GitHubError.unauthorized
+        case 403, 429:
+            throw GitHubError.rateLimitExceeded
+        case 404:
+            throw GitHubError.notFound(username: username)
+        default:
+            throw GitHubError.invalidResponse(
+                statusCode: response.statusCode
+            )
         }
 
-        repos = try JSONDecoder().decode(
-            [Repository].self,
-            from: data
-        )
-        
-        repos = Array(repos
-            .sorted { $0.stargazersCount > $1.stargazersCount }
-            .prefix(3)
-        )
+        do {
+            repos = try JSONDecoder().decode(
+                [Repository].self,
+                from: data
+            )
+            
+            repos = Array(repos
+                .sorted { $0.stargazersCount > $1.stargazersCount }
+                .prefix(3)
+            )
+        } catch {
+            throw GitHubError.invalidData
+        }
     }
 }

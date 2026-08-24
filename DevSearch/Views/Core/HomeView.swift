@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var searchPage = 1
     @State private var isLoadingMore = false
     @State private var isFirstLaunch = true
+    @State private var viewMode: ViewMode = .success
     
     // Swift Data Properties
     @Environment(\.modelContext) private var modelContext
@@ -26,10 +27,12 @@ struct HomeView: View {
         NavigationStack(path: $gvm.path) {
             ScrollView {
                 LazyVStack(alignment: .leading) {
+                    viewMode.errorView
                     ClientsList(
-                        search: search,
+                        viewMode: $viewMode,
                         searchPage: $searchPage,
-                        isLoadingMore: $isLoadingMore
+                        isLoadingMore: $isLoadingMore,
+                        search: search
                     )
                     .environment(gvm)
                     .environment(vm)
@@ -41,19 +44,7 @@ struct HomeView: View {
                 placement: .navigationBarDrawer(displayMode: .automatic)
             )
             .onSubmit(of: .search) {
-                searchPage = 1
-                isLoadingMore = false
-
-                Task {
-                    do {
-                        try await vm.searchUsers(
-                            query: search,
-                            page: searchPage
-                        )
-                    } catch {
-                        print(error)
-                    }
-                }
+                handleFetchingUsers()
             }
             .navigationTitle("DevSearch")
             .background(.appBg)
@@ -62,7 +53,6 @@ struct HomeView: View {
             }
             .onChange(of: vm.searchResults) { _, newResults in
                 cacheDevelopers(newResults)
-                print(cachedDevelopers.count)
             }
             
         }.overlay {
@@ -79,7 +69,6 @@ struct HomeView: View {
                 }
             }
         }
-
     }
     
     // Preserving Data
@@ -109,101 +98,40 @@ struct HomeView: View {
 
             try modelContext.save()
         } catch {
-            print("Failed to cache developers:", error)
-        }
-    }
-}
-
-private struct ClientsList: View {
-    @Environment(\.isSearching) private var isSearching
-    @Environment(GeneralVM.self) private var gvm
-    @Environment(HomeVM.self) private var vm
-
-    let search: String
-    
-
-    @Binding var searchPage: Int
-    @Binding var isLoadingMore: Bool
-    
-    // Swift Data Properties
-    @Environment(\.modelContext) private var modelContext
-    @Query private var cachedDevelopers: [CachedDeveloper]
-
-    var body: some View {
-        if isSearching {
-            searchClients
-        } else {
-            savedClients
-        }
-    }
-
-    @ViewBuilder
-    private var searchClients: some View {
-        ForEach(vm.searchResults) { developer in
-            Button {
-                gvm.path.append(developer)
-            } label: {
-                SearchDeveloperItem(developer: developer)
-            }
-            .onAppear {
-                guard developer.id == vm.searchResults.last?.id else {
-                    return
-                }
-
-                loadNextPage()
-            }
-        }
-
-        if isLoadingMore {
-            ProgressView()
-                .frame(maxWidth: .infinity)
-                .padding()
+            viewMode = .failure(error: PersistenceError.saveFailed)
         }
     }
     
-    @ViewBuilder
-    private var savedClients: some View {
-        if cachedDevelopers.isEmpty {
-            ContentUnavailableView("No Developers Found", image: "text.page.slash", description: Text("You'll find your saved developers here"))
-        } else {
-            ForEach(cachedDevelopers) { dev in
-                Button {
-                    gvm.path.append(convertCachedToSearch(dev))
-                } label: {
-                    SearchDeveloperItem(developer: convertCachedToSearch(dev))
-                }
-            }
-        }
-    }
-    
-    private func convertCachedToSearch(_ cachedDev: CachedDeveloper) -> SearchDeveloper {
-        SearchDeveloper(
-            id: cachedDev.id,
-            login: cachedDev.login,
-            avatar_url: cachedDev.avatarURL
-        )
-    }
-
-    private func loadNextPage() {
-        guard !isLoadingMore else { return }
-
-        isLoadingMore = true
-        searchPage += 1
-
+    private func handleFetchingUsers() {
         Task {
+            searchPage = 1
+            isLoadingMore = false
+
             do {
+                try modelContext.delete(model: CachedDeveloper.self)
+                try modelContext.save()
+            } catch {
+                viewMode = .failure(error: PersistenceError.deleteFailed)
+                return
+            }
+
+            do {
+                viewMode = .loading(label: "Fetching Users")
+
                 try await vm.searchUsers(
                     query: search,
                     page: searchPage
                 )
-            } catch {
-                print(error)
-            }
 
-            isLoadingMore = false
+                viewMode = .success
+            } catch {
+                viewMode = .failure(error: error)
+            }
         }
     }
 }
+
+
 
 #Preview {
     NavigationStack {
