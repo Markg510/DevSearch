@@ -61,6 +61,7 @@ private struct ClientsList: View {
     @Environment(HomeVM.self) private var vm
 
     let search: String
+    
 
     @Binding var searchPage: Int
     @Binding var isLoadingMore: Bool
