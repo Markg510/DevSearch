@@ -62,11 +62,6 @@ struct SearchDeveloperItem: View {
         id: 12232166,
         login: "TorvaldsDB",
         avatar_url: "https://avatars.githubusercontent.com/u/12232166?v=4",
-        url: "https://api.github.com/users/TorvaldsDB",
-        followers_url: "https://api.github.com/users/TorvaldsDB/followers",
-        starred_url: "https://api.github.com/users/TorvaldsDB/starred%7B/owner%7D%7B/repo%7D",
-        repos_url: "https://api.github.com/users/TorvaldsDB/repos"
-
     )
     
     SearchDeveloperItem(developer: dummyDev)

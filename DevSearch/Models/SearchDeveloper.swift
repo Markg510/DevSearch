@@ -11,10 +11,6 @@ struct SearchDeveloper: Identifiable, Equatable, Codable, Hashable {
     let id: Int
     let login: String
     let avatar_url: String
-    let url: String
-    let followers_url: String
-    let starred_url: String
-    let repos_url: String
 }
 
 extension SearchDeveloper {
