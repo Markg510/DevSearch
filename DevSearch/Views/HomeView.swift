@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var search = ""
     @State private var searchPage = 1
     @State private var isLoadingMore = false
+    @State private var isFirstLaunch = true
     
     // Swift Data Properties
     @Environment(\.modelContext) private var modelContext
@@ -62,6 +63,20 @@ struct HomeView: View {
             .onChange(of: vm.searchResults) { _, newResults in
                 cacheDevelopers(newResults)
                 print(cachedDevelopers.count)
+            }
+            
+        }.overlay {
+            if isFirstLaunch {
+                LaunchView()
+            }
+        }.onAppear {
+            if isFirstLaunch {
+                Task {
+                    try await Task.sleep(nanoseconds: 3_500_000_000)
+                    withAnimation {
+                        isFirstLaunch = false
+                    }
+                }
             }
         }
 
