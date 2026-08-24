@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension View {
-    func surface(background: some View = Color.primary) -> some View {
+    func surface(background: some View = Color(.colorPrimary)) -> some View {
         self
             .background(background)
             .clipShape(.rect(cornerRadius: 16))

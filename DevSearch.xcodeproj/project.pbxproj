@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A859491F303BB82F00B5D65E /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = A859491E303BB82F00B5D65E /* Nuke */; };
+		A8594921303BB82F00B5D65E /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = A8594920303BB82F00B5D65E /* NukeExtensions */; };
+		A8594923303BB82F00B5D65E /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = A8594922303BB82F00B5D65E /* NukeUI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A85BCBED303A2332009D4D4D /* DevSearch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevSearch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +29,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8594923303BB82F00B5D65E /* NukeUI in Frameworks */,
+				A859491F303BB82F00B5D65E /* Nuke in Frameworks */,
+				A8594921303BB82F00B5D65E /* NukeExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +74,9 @@
 			);
 			name = DevSearch;
 			packageProductDependencies = (
+				A859491E303BB82F00B5D65E /* Nuke */,
+				A8594920303BB82F00B5D65E /* NukeExtensions */,
+				A8594922303BB82F00B5D65E /* NukeUI */,
 			);
 			productName = DevSearch;
 			productReference = A85BCBED303A2332009D4D4D /* DevSearch.app */;
@@ -94,6 +106,9 @@
 			);
 			mainGroup = A85BCBE4303A2332009D4D4D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A859491D303BB82F00B5D65E /* XCRemoteSwiftPackageReference "Nuke" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A85BCBEE303A2332009D4D4D /* Products */;
 			projectDirPath = "";
@@ -261,6 +276,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -293,6 +309,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -332,6 +349,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A859491D303BB82F00B5D65E /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A859491E303BB82F00B5D65E /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A859491D303BB82F00B5D65E /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		A8594920303BB82F00B5D65E /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A859491D303BB82F00B5D65E /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		A8594922303BB82F00B5D65E /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A859491D303BB82F00B5D65E /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A85BCBE5303A2332009D4D4D /* Project object */;
 }

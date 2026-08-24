@@ -29,8 +29,13 @@ enum ProgrammingLanguage: CaseIterable, Identifiable {
     case vue
     case r
     case scala
+    case tsql
+    case apacheConf
+    case objectiveC
+    case ejs
+    case jupyterNotebook
     case lua
-    
+
     var id: Self { self }
 }
 
@@ -58,12 +63,17 @@ extension ProgrammingLanguage {
         case .vue: "Vue"
         case .r: "R"
         case .scala: "Scala"
+        case .tsql: "T-SQL"
+        case .apacheConf: "ApacheConf"
+        case .objectiveC: "Objective-C"
+        case .ejs: "EJS"
+        case .jupyterNotebook: "Jupyter Notebook"
         case .lua: "Lua"
         }
     }
-    
+
     /// We use official GitHub language colors here.
-    /// 3l4an kda msh 7atethom fl assets.
+    /// 3l4an kda msh 7atethom fl assets
     var color: Color {
         switch self {
         case .javascript: .init(hex: "F1E05A")
@@ -87,7 +97,59 @@ extension ProgrammingLanguage {
         case .vue: .init(hex: "41B883")
         case .r: .init(hex: "198CE7")
         case .scala: .init(hex: "DC322F")
+        case .tsql: .init(hex: "3178C6")
+        case .apacheConf: .init(hex: "D22128")
+        case .objectiveC: .init(hex: "438EFF")
+        case .ejs: .init(hex: "A91E50")
+        case .jupyterNotebook: .init(hex: "DA5B0B")
         case .lua: .init(hex: "000080")
         }
+    }
+}
+
+extension ProgrammingLanguage: Codable {
+    init(from decoder: Decoder) throws {
+        let value = try decoder.singleValueContainer().decode(String.self)
+
+        switch value {
+        case "JavaScript": self = .javascript
+        case "TypeScript": self = .typescript
+        case "Python": self = .python
+        case "Java": self = .java
+        case "C#": self = .cSharp
+        case "C++": self = .cpp
+        case "C": self = .c
+        case "Assembly": self = .assembly
+        case "Go": self = .go
+        case "Rust": self = .rust
+        case "PHP": self = .php
+        case "Swift": self = .swift
+        case "Kotlin": self = .kotlin
+        case "Ruby": self = .ruby
+        case "Dart": self = .dart
+        case "Shell": self = .shell
+        case "HTML": self = .html
+        case "CSS": self = .css
+        case "Vue": self = .vue
+        case "R": self = .r
+        case "Scala": self = .scala
+        case "TSQL": self = .tsql
+        case "ApacheConf": self = .apacheConf
+        case "Objective-C": self = .objectiveC
+        case "EJS": self = .ejs
+        case "Jupyter Notebook": self = .jupyterNotebook
+        case "Lua": self = .lua
+
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: try decoder.singleValueContainer(),
+                debugDescription: "Unsupported GitHub language: \(value)"
+            )
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(title)
     }
 }

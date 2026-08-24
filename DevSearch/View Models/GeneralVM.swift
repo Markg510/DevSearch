@@ -8,5 +8,5 @@
 import SwiftUI
 
 @Observable class GeneralVM {
-    let path = NavigationPath()
+    var path = NavigationPath()
 }

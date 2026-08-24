@@ -8,6 +8,13 @@
 import SwiftUI
 
 struct DeveloperView: View {
+    // Passed Properties
+    let login: String
+    
+    // View Properties
+    @Environment(\.openURL) private var openURL
+    @State private var vm = DeveloperVM()
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
@@ -15,28 +22,44 @@ struct DeveloperView: View {
                 userStats
                 location
                 topLanguages
-                recentRepos
+                popularRepos
                 githubButton
             }.padding()
         }.background(.appBg)
+            .task {
+                Task {
+                    do {
+                        try await vm.fetchDeveloper(login: login)
+                        try await vm.fetchRepositories(of: login)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
     }
     
     @ViewBuilder
     private var header: some View {
         VStack {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.textSecondary)
-                .frame(width: 100, height: 100)
+            Group {
+                if let url = vm.developer?.pfpURL {
+                    CustomImage(viewType: .urlAvailable(url: url))
+                } else {
+                    CustomImage(viewType: .loadingURL)
+                }
+            }.frame(width: 100, height: 100)
+                .clipShape(.rect(cornerRadius: 16))
             
-            Text("John Doe")
+            Text(vm.developer?.name ?? "Loading...")
                 .font(.title)
                 .fontWeight(.medium)
                 .foregroundStyle(.textPrimary)
             
-            Text("@johndoe123")
+            Text(login)
                 .foregroundStyle(.textSecondary)
             
-            Text("Experienced IOS Developer")
+            
+            Text(vm.developer?.bio ?? "Loading...")
                 .foregroundStyle(.textTertiary)
                 .font(.caption)
                 .lineLimit(1)
@@ -63,17 +86,17 @@ struct DeveloperView: View {
     
     private var userStats: some View {
         HStack {
-            statItem(value: 7, description: "repos")
+            statItem(value: vm.developer?.publicRepos ?? 0, description: "repos")
             
             Divider()
                 .overlay(.textTertiary)
             
-            statItem(value: 230_000, description: "followers")
+            statItem(value: vm.developer?.followers ?? 0, description: "followers")
             
             Divider()
                 .overlay(.textTertiary)
             
-            statItem(value: 0, description: "following")
+            statItem(value: vm.developer?.following ?? 0, description: "following")
         }.padding(.horizontal)
             .surface()
             .frame(height: 70)
@@ -105,7 +128,7 @@ struct DeveloperView: View {
                     .font(.footnote)
                     .foregroundStyle(.textSecondary)
                 
-                Text("Port Said, Egypt")
+                Text(vm.developer?.location ?? "Loading...")
                     .font(.callout)
                     .foregroundStyle(.textPrimary)
             }
@@ -123,9 +146,9 @@ struct DeveloperView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    languageItem(.c)
-                    languageItem(.cpp)
-                    languageItem(.assembly)
+                    ForEach(vm.topLanguagesArray) { language in
+                        languageItem(language)
+                    }
                 }
             }
         }.padding()
@@ -151,30 +174,27 @@ struct DeveloperView: View {
     }
     
     @ViewBuilder
-    private var recentRepos: some View {
-        Text("Recent Repositories")
-            .fontWeight(.medium)
-            .foregroundStyle(.textSecondary)
-        
-        repoItem(
-            title: "torval-core",
-            description: "Core library and utilities for the project ecosystem",
-            language: "Typescript",
-            stars: 3751
-        )
-        
-        repoItem(
-            title: "torval-cli",
-            description: "Command-line interface with plugin support and auto-completion",
-            language: "Go",
-            stars: 3751
-        ).padding(.bottom)
+    private var popularRepos: some View {
+        if !vm.repos.isEmpty {
+            Text("Popular Repositories")
+                .fontWeight(.medium)
+                .foregroundStyle(.textSecondary)
+            
+            ForEach(vm.repos) { repo in
+                repoItem(
+                    title: repo.name,
+                    description: repo.description ?? "Loading...",
+                    language: repo.language ?? .go,
+                    stars: repo.stargazersCount
+                )
+            }
+        }
     }
     
     private func repoItem(
         title: String,
         description: String,
-        language: String,
+        language: ProgrammingLanguage,
         stars: Int
     ) -> some View {
         VStack(alignment: .leading) {
@@ -193,24 +213,21 @@ struct DeveloperView: View {
                 .font(.footnote)
                 .foregroundStyle(.textSecondary)
             
-            HStack {
-                Circle()
-                    .fill(.appBlue)
-                    .frame(width: 8, height: 8)
-                
-                Text("Typescript")
-                    .foregroundStyle(.textTertiary)
-            }
+            languageItem(language)
         }
         .padding()
         .surface()
     }
     
     private var githubButton: some View {
-        AppButton(title: "View on Github", icon: .image("icon")) {}
+        AppButton(title: "View on Github", icon: .image("icon")) {
+            guard let urlString = vm.developer?.htmlURL else { return }
+            guard let url = URL(string: urlString) else { return }
+            openURL(url)
+        }.padding(.top)
     }
 }
 
 #Preview {
-    DeveloperView()
+    DeveloperView(login: "TorvaldsDB")
 }
